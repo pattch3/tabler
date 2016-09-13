@@ -1,0 +1,20 @@
+.tblr-contianer {
+	width: 100%;
+	position: relative;
+}
+
+.tblr-table {
+	width: 100%;
+	border: none;
+}
+
+.tblr-table td{
+	height: 20px;
+	border: 1px solid #f5f5f5;
+	box-sizing: border-box; 
+	cursor: text;
+}
+
+.tblr-table td:hover {
+	border-color: #999;
+}
