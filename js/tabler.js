@@ -9,62 +9,112 @@
             var editor = $(this)
 
             ,settings = $.extend({
-                'table' : '<table border="1" cellpadding="0" cellspacing="0" ></table>',
+                'table' : null,
                 'rows'  : 10,
                 'cols'  : 4
             }, options),
 
-            table = methods.generateTable(editor, settings.rows, settings.cols, settings.table);
+            table = methods._generateTable(editor, settings.rows, settings.cols, settings.table);
 
-            // bind toolbar actions to method
-            $(this.find('[class*="tblr-action__"]')).bind('click.tblrToolbar', {'table' : table} ,methods.toolbar);
+            methods._toolbarInit(editor, table);
 
-            editor.addClass('tblr-contianer');
+            editor.addClass('tabler-contianer');
+
+            return editor;
         },
 
-        generateTable : function(editor, rows, cols, table) {
+        _generateTable : function(editor, rows, cols, table) {
+            if (table != null) {
+                editor.append(table);
+            } else {
+                editor.append('<table border="1" cellpadding="0" cellspacing="0" ></table>');   
+                var table = $(editor.find('table')), content;
+                table.data('tabler-settings', {'rows' : rows, 'cols' : cols}).addClass('tabler-table');
 
-            editor.append(table);   
-            var table = $(editor.find('table')), content;
-            table.data('tblr-settings', {'rows' : rows, 'cols' : cols}).addClass('tblr-table');
-
-            for (var i = 0 ; i < rows; i++) {
-                content += '<tr>';
-                for (var k = 0; k < cols; k++) {
-                    content += '<td colspan="1" rowspan="1" data-position="' + k + '"></td>';
+                for (var i = 0 ; i < rows; i++) {
+                    content += '<tr>';
+                    for (var k = 0; k < cols; k++) {
+                        content += '<td colspan="1" rowspan="1" class="tabler-transition" ></td>';
+                    }
+                    content += '</tr>';
                 }
-                content += '</tr>';
-            }
 
-            table.append(content);
+                table.append(content);
+            }
 
             return table;
         },
 
-        toolbar : function(e) {
-            var self    =   $(this),
+        _toolbarInit : function(editor, table) {
+
+            editor.prepend($('<div>', {
+                'class'     : 'tabler-toolbar'
+            }));
+
+            var actions = {
+                'addRowDown'    : 'Add row down', 
+                'addRowUp'      : 'Add row up',
+                'addColLeft'    : 'Add column left',
+                'addColRight'   : 'Add column right'
+            },
+            toolbar = editor.find('.tabler-toolbar');
+
+            $.each( actions, function(data, name) {
+                toolbar.append(
+                    $('<span>', {
+                        'class' : 'tabler-toolbar__action tabler-transition tabler-icon__' + name,
+                        'data-tabler-toolbar-action' : data,
+                        'data-tabler-toolbar-name' : 'name'
+                    })
+                );
+            });
+
+            $(editor.find('.tabler-toolbar__action')).bind('click.tablerToolbar', {'table' : table} ,methods.toolbarActions);
+
+            return toolbar;
+
+        },
+
+        toolbarActions : function(e) {
+
+            var self    = $(this),
+            action      = self.data('tabler-toolbar-action'),
             table       =   e.data.table;
             
-            if (self.hasClass('tblr-action__add-row')) {
-                table.data('tblr-settings').rows++;
+            if (action == "addRowDown" || action == "addRowUp" ) {
+                
+                table.data('tabler-settings').rows++;
 
-                var cloneRow = table.find('tr:last').clone();
+                var cloneRow = action == "addRowDown" ? table.find('tr:last').clone() : table.find('tr:first').clone() ;
+                
                 cloneRow.find('td').each(function(){
                     $(this).html('');
                 });
-                table.append(cloneRow);
+
+                if (action == "addRowDown") {
+                    table.append(cloneRow);
+                } else {
+                    table.prepend(cloneRow);
+                }
 
                 return;
             }
 
-            if (self.hasClass('tblr-action__add-col')) {
-                table.data('tblr-settings').cols++;
+            if (action == "addColLeft" || action == "addColRight") {
+                table.data('tabler-settings').cols++;
 
                 table.find('tr').each(function(){
-                    var colCount = $(this).find('td').length;
-                    $(this).append('<td colspan="1" rowspan="1" data-position="' + colCount + '"></td>');
+                    var colCount = $(this).find('td').length,
+                    colTemplate = '<td colspan="1" rowspan="1" class="tabler-transition" ></td>';
 
+                    if (action == "addColLeft") {
+                        $(this).append(colTemplate);    
+                    } else {
+                        $(this).prepend(colTemplate);
+                    }
                 });
+
+                return;
             }
         }
     }
