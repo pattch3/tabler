@@ -1,6 +1,27 @@
+html,body {
+    margin: 0px;
+    padding: 0px;
+}
+
+div[class*="tabler-"] {
+    box-sizing: border-box;
+    margin: 0px;
+}
+
 .tabler-contianer {
     width: 100%;
+    height: 100%;
     position: relative;
+    padding: 100px 20px 40px 20px;
+    float: left;
+    background-color: #ededed;
+    text-align: center;
+}
+
+.tabler-primary-width {
+    position: absolute;
+    top: 80px;
+    width: 
 }
 
 .tabler-transition {
@@ -18,25 +39,33 @@
 
 .tabler-table td{
     height: 20px;
-    border: 1px solid #f5f5f5;
+    border-top:0px;
+    border-right: 0px;
+    border-bottom: 1px dashed #f5f5f5;
+    border-left: 1px dashed #f5f5f5;
+    outline: 0px solid #e7e7e7;
     box-sizing: border-box; 
-    cursor: text;
 }
 
-.tabler-table td:hover {
-    border-color: #999;
+.tabler-table tr td:hover {
+    outline: 1px solid #e7e7e7;
 }
 
 .tabler-toolbar {
     width: 100%;
-    height: 24px;
-    background-color: #f5f5f5;
+    height: 30px;
+    background-color: #fff;
+    box-shadow: 0.5px 0.866px 2px 0px rgba( 0, 0, 0 ,0.5);
+    position: absolute;
+    top: 0px;
+    left: 0px;
 }
+
 
 .tabler-toolbar__action {
     float: left;
-    width: 24px;
-    height: 24px;
+    width: 30px;
+    height: 29px;
     background-color: #fff;
     border-right: 1px solid #eee;
     border-bottom: 1px solid #ddd;
@@ -66,6 +95,8 @@
     background-image: url('../icons/add-col-right.png')
 }
 
-.tabler-toolbar__actioin:first {
-    
+.tabler-wrapper {
+    background-color: #fff;
+    display: inline-block;
+    box-shadow: 2.5px 4.33px 10px 0px rgba( 0, 0, 0 , 0.2);
 }

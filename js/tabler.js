@@ -7,57 +7,71 @@
     var methods = {
         init : function(options) { 
             var editor = $(this)
-
             ,settings = $.extend({
                 'table' : null,
-                'rows'  : 10,
-                'cols'  : 4
+                'rows'  : 40,
+                'cols'  : 4,
+                'width' : 600
             }, options),
+            actions = { // default actions
+                'addRowDown'    : 'Add row down', 
+                'addRowUp'      : 'Add row up',
+                'addColLeft'    : 'Add column left',
+                'addColRight'   : 'Add column right'
+            },
+            table = methods._generateTable(editor, settings);
 
-            table = methods._generateTable(editor, settings.rows, settings.cols, settings.table);
+            var tableWrapper = editor.wrapInner('<div class="tabler-wrapper"></div>');
+            tableWrapper.prepend(
+                    $('<input>', {
+                        'class' : 'tabler-change tabler-primary-width',
+                        'data-tabler-update' : 'width',
+                        'data-tabler-target' : '.tabler-table',
+                        'data-has-label' : 'true'
+                    })
+            );
 
-            methods._toolbarInit(editor, table);
+
+            methods._toolbarInit(editor, table, actions);
+            $(editor.find('.tabler-change')).bind('keyup.tablerSettings', {'table' : table} , methods.toolbarChangeSettings);
 
             editor.addClass('tabler-contianer');
 
             return editor;
         },
 
-        _generateTable : function(editor, rows, cols, table) {
-            if (table != null) {
-                editor.append(table);
+        _generateTable : function(editor, settings) {
+            if (settings.table != null) {
+                editor.append(settings.table);
+                return settings.table;
             } else {
                 editor.append('<table border="1" cellpadding="0" cellspacing="0" ></table>');   
                 var table = $(editor.find('table')), content;
-                table.data('tabler-settings', {'rows' : rows, 'cols' : cols}).addClass('tabler-table');
+                table.data('tabler-settings', {'rows' : settings.rows, 'cols' : settings.cols}).addClass('tabler-table');
+                table.width(settings.width);
 
-                for (var i = 0 ; i < rows; i++) {
+                for (var i = 0 ; i < settings.rows; i++) {
                     content += '<tr>';
-                    for (var k = 0; k < cols; k++) {
+                    for (var k = 0; k < settings.cols; k++) {
                         content += '<td colspan="1" rowspan="1" class="tabler-transition" ></td>';
                     }
                     content += '</tr>';
                 }
 
                 table.append(content);
+                return table;
             }
 
-            return table;
+            
         },
 
-        _toolbarInit : function(editor, table) {
+        _toolbarInit : function(editor, table, actions) {
 
             editor.prepend($('<div>', {
                 'class'     : 'tabler-toolbar'
             }));
 
-            var actions = {
-                'addRowDown'    : 'Add row down', 
-                'addRowUp'      : 'Add row up',
-                'addColLeft'    : 'Add column left',
-                'addColRight'   : 'Add column right'
-            },
-            toolbar = editor.find('.tabler-toolbar');
+            var toolbar = editor.find('.tabler-toolbar');
 
             $.each( actions, function(data, name) {
                 toolbar.append(
@@ -69,14 +83,15 @@
                 );
             });
 
-            $(editor.find('.tabler-toolbar__action')).bind('click.tablerToolbar', {'table' : table} ,methods.toolbarActions);
 
+            //bind settings
+            $(editor.find('.tabler-toolbar__action')).bind('click.tablerToolbar', {'table' : table} ,methods.toolbarActions);
             return toolbar;
 
         },
 
         toolbarActions : function(e) {
-
+            e.preventDefault();
             var self    = $(this),
             action      = self.data('tabler-toolbar-action'),
             table       =   e.data.table;
@@ -116,6 +131,18 @@
 
                 return;
             }
+        } ,
+
+        toolbarChangeSettings : function() {
+            var self = $(this),
+            target = $(self.data('tabler-target'));
+
+            self.addClass('tabler-update__setting');
+            setTimeout(function(){
+                target.css(self.data('tabler-update'), self.val())
+                self.removeClass('tabler-update__setting');
+            }, 1000);
+            
         }
     }
 
